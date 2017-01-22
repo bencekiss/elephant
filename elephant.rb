@@ -6,6 +6,7 @@ class Stage
 
   @@moves_left = 0
   @@bonus = 0
+  @@fly = 3
   @@level_stat = "ELEPHANT!"
   @@info = ""
 
@@ -22,9 +23,9 @@ class Stage
   def game_initialize
     while true
       wipe
-      puts "ELEPHANT PROGRAM"
-      puts "================"
-      print "Choose a grid size: \n[1] easy \n[2] medium \n[3] hard\n[x] quit\n"
+      puts "DUMBO THE ELEPHANT"
+      puts "=================="
+      print "Choose a difficulty level: \n[1] easy \n[2] medium \n[3] hard\n[x] quit\n"
       input = gets.chomp
       if input == "1"
         @x_length = 3; @y_length = 3
@@ -90,11 +91,18 @@ class Stage
       possible_inputs = ["a", "s", "d", "w"]
       input = STDIN.getch.chomp.downcase
 
-      # Move counter
-      @elephant.move(input, @x_length, @y_length)
-      if possible_inputs.include?(input)
-        @@info = ""
-        @@moves_left -= 1
+      # Move and Fly counter
+      if input == "f"
+        unless @@fly <= 0
+          @elephant.move(input, @x_length, @y_length)
+          @@fly -= 1
+        end
+      else
+        @elephant.move(input, @x_length, @y_length)
+        if possible_inputs.include?(input)
+          @@info = ""
+          @@moves_left -= 1
+        end
       end
 
       # Elephant eats the peanut
@@ -120,7 +128,7 @@ class Stage
         puts "Moves Left: #{@@moves_left}"
         puts "Current Level: #{level_string}"
         puts "\nYOU WIN!!!"
-        puts "Your elephant is full from all the peanuts!"
+        puts "Dumbo is full from all the peanuts!"
         over = true
       end
 
@@ -133,7 +141,7 @@ class Stage
         puts "Moves Left: #{@@moves_left}"
         puts "Current Level: #{level_string}"
         puts "\nGAME OVER..."
-        puts "Your elephant died of starvation."
+        puts "Dumbo died of starvation."
         over = true
       end
     end
@@ -141,6 +149,7 @@ class Stage
   end
 
   def game_over
+    @@fly = 3
     @elephant.x = 1; @elephant.y = 1
     puts "Press any key to return to the main menu."
     input = gets.chomp
@@ -151,15 +160,16 @@ class Stage
 
   def stat_display
     puts ""
-    puts "Move the elephant [E] around the map to help it eat the peanut [*]."
+    puts "Move Dumbo [D] around the map to help him eat the peanut [*]."
+    puts "Dumbo can fly to a new place on the map, but only a limited number of times."
     puts "[w] = move up \t\t[a] = move left \n[s] = move down \t[d] = move right\n"
-    puts "[x] = exit"
+    puts "[f] = fly (#{@@fly} left) \t[x] = exit"
   end
 
   def grid_display
     wipe
-    puts "ELEPHANT PROGRAM"
-    puts "================"
+    puts "DUMBO THE ELEPHANT"
+    puts "=================="
     # puts "Peanut #{[@peanut.x, @peanut.y]}, Elephant #{[@elephant.x, @elephant.y]}"
     x_line = ""
     e_line = ""
@@ -176,7 +186,7 @@ class Stage
     if @peanut.y == @elephant.y
       @x_length.times { |num|
         if num == @elephant.x-1
-          ep_line += "|E"
+          ep_line += "|D"
         elsif num == @peanut.x-1
           ep_line += "|*"
         else
@@ -189,7 +199,7 @@ class Stage
     # Generating x line with the elephant on it.
     @x_length.times { |num|
       if num == @elephant.x-1
-        e_line += "|E"
+        e_line += "|D"
       else
         e_line += "|_"
       end
@@ -244,6 +254,7 @@ class Elephant
     when "s" then @y -= 1 unless @y <= 1
     when "d" then @x += 1 unless @x >= x_length
     when "w" then @y += 1 unless @y >= y_length
+    when "f" then @x = rand(1..x_length); @y = rand(1..y_length)
     when "x" then exit
     end
   end
