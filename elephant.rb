@@ -7,11 +7,16 @@ class Stage
   @@moves_left = 0
   @@bonus = 0
   @@level_stat = "ELEPHANT!"
+  @@info = ""
 
   def initialize(elephant, peanut)
     @elephant = elephant
     @peanut = peanut
     game_initialize
+  end
+
+  def self.create(elephant, peanut) # Don't forget to include arguments identical to initialize method
+    stage_info = self.new(elephant, peanut)
   end
 
   def game_initialize
@@ -22,20 +27,20 @@ class Stage
       print "Choose a grid size: \n[1] easy \n[2] medium \n[3] hard\n[x] quit\n"
       input = gets.chomp
       if input == "1"
-        @x_length = 2; @y_length = 2
-        @@moves_left = 12
-        @@bonus = 7
-        peanut_generator
-        self.interface
-      elsif input == "2"
         @x_length = 3; @y_length = 3
         @@moves_left = 10
         @@bonus = 5
         peanut_generator
         self.interface
+      elsif input == "2"
+        @x_length = 4; @y_length = 3
+        @@moves_left = 15
+        @@bonus = 4
+        peanut_generator
+        self.interface
       elsif input == "3"
         @x_length = 4; @y_length = 4
-        @@moves_left = 8
+        @@moves_left = 20
         @@bonus = 3
         peanut_generator
         self.interface
@@ -50,16 +55,12 @@ class Stage
 
   def quit
     puts "Are you sure you want to quit? [Y/N]"
-    yesno = gets.chomp
-    if yesno == "Y"
+    yesno = gets.chomp.downcase
+    if yesno == "y"
       exit
     else
       game_initialize
     end
-  end
-
-  def self.create(elephant, peanut) # Don't forget to include arguments identical to initialize method
-    stage_info = self.new(elephant, peanut)
   end
 
   def peanut_generator
@@ -74,27 +75,31 @@ class Stage
     return [@peanut.x, @peanut.y]
   end
 
-  def interface
+  def interface # All gameplay mechanics fall into here
     level = 0
     score = 0
     level_string = "E"
     over = false
     until over
       grid_display
-      puts ""
-      puts "Move the elephant [E] around the map to help it eat the peanut [*]."
-      puts "[w] = move up \t\t[a] = move left \n[s] = move down \t[d] = move right\n"
-      puts "[x] = exit"
+      stat_display
       puts "\nPeanuts Eaten: #{score}"
       puts "Moves Left: #{@@moves_left}"
       puts "Current Level: #{level_string}"
+      puts "\n#{@@info}"
       possible_inputs = ["a", "s", "d", "w"]
-      input = STDIN.getch.chomp
+      input = STDIN.getch.chomp.downcase
+
+      # Move counter
       @elephant.move(input, @x_length, @y_length)
       if possible_inputs.include?(input)
+        @@info = ""
         @@moves_left -= 1
       end
+
+      # Elephant eats the peanut
       if [@elephant.x, @elephant.y] == [@peanut.x, @peanut.y]
+        @@info += "CHOMP!"
         @@moves_left += @@bonus
         peanut_generator
         score += 1
@@ -105,12 +110,30 @@ class Stage
           level_string += @@level_stat[level]
         end
       end
+
+      # Conditions for winning
       if level_string == @@level_stat
-        puts "Your elephant did it! YOU WIN!"
+        wipe
+        grid_display
+        stat_display
+        puts "\nPeanuts Eaten: #{score}"
+        puts "Moves Left: #{@@moves_left}"
+        puts "Current Level: #{level_string}"
+        puts "\nYOU WIN!!!"
+        puts "Your elephant is full from all the peanuts!"
         over = true
       end
-      if @@moves_left == 0
-        puts "Your elephant died of starvation. GAME OVER..."
+
+      # Conditions for losing
+      if @@moves_left <= 0
+        wipe
+        grid_display
+        stat_display
+        puts "\nPeanuts Eaten: #{score}"
+        puts "Moves Left: #{@@moves_left}"
+        puts "Current Level: #{level_string}"
+        puts "\nGAME OVER..."
+        puts "Your elephant died of starvation."
         over = true
       end
     end
@@ -124,6 +147,13 @@ class Stage
     if input != ""
       game_initialize
     end
+  end
+
+  def stat_display
+    puts ""
+    puts "Move the elephant [E] around the map to help it eat the peanut [*]."
+    puts "[w] = move up \t\t[a] = move left \n[s] = move down \t[d] = move right\n"
+    puts "[x] = exit"
   end
 
   def grid_display
