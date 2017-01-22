@@ -2,21 +2,35 @@ require 'io/console'
 
 class Stage
   attr_reader :x_length, :y_length
-  attr_accessor :elephant
+  attr_accessor :elephant, :peanut
 
-  def initialize(elephant)
+  def initialize(elephant, peanut)
     @elephant = elephant
+    @peanut = peanut
     # print "Input x-length of stage: "
     # x_length = gets.chomp.to_i
     # print "Input y-length of stage: "
     # y_length = gets.chomp.to_i
     @x_length = 9
     @y_length = 9
-    self.interface
+    peanut_generator
+    # self.interface
   end
 
-  def self.create(elephant) # Don't forget to include arguments identical to initialize method
-    stage_info = self.new(elephant)
+  def self.create(elephant, peanut) # Don't forget to include arguments identical to initialize method
+    stage_info = self.new(elephant, peanut)
+  end
+
+  def peanut_generator
+    @peanut.x = rand(1..@x_length)
+    @peanut.y = rand(1..@y_length)
+    if [@peanut.x, @peanut.y] == [@elephant.x, @elephant.y]
+      until [@peanut.x, @peanut.y] != [@elephant.x, @elephant.y]
+        @peanut.x = rand(1..@x_length)
+        @peanut.y = rand(1..@y_length)
+      end
+    end
+    return [@peanut.x, @peanut.y]
   end
 
   def interface
@@ -26,7 +40,7 @@ class Stage
       puts "ELEPHANT PROGRAM"
       puts "================"
       puts "Move the elephant [E] around the map to help it eat the peanut [*]."
-      puts "[w] = move up \t\t[a] = move left \n[s] = move down \t[d] = move right"
+      puts "[w] = move up \t\t[a] = move left \n[s] = move down \t[d] = move right\n"
       puts "[x] = exit"
       input = STDIN.getch.chomp
       @elephant.move(input, @x_length, @y_length)
@@ -72,7 +86,7 @@ class Stage
 end
 
 class Elephant
-  attr_accessor :x, :y, :stage
+  attr_accessor :x, :y
 
   def initialize(x = 1, y = 1)
     @x = x
@@ -90,4 +104,13 @@ class Elephant
   end
 end
 
-stage = Stage.create(Elephant.new(1, 1))
+class Peanut
+  attr_accessor :x, :y
+
+  def initialize
+    @x = 0
+    @y = 0
+  end
+end
+
+stage = Stage.create(Elephant.new(1, 1), Peanut.new)
