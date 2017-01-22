@@ -4,9 +4,9 @@ class Stage
   attr_reader :x_length, :y_length
   attr_accessor :elephant, :peanut
 
-  @@score = 0
   @@moves_left = 0
   @@bonus = 0
+  @@level_stat = "ELEPHANT!"
 
   def initialize(elephant, peanut)
     @elephant = elephant
@@ -22,21 +22,21 @@ class Stage
       print "Choose a grid size: \n[1] easy \n[2] medium \n[3] hard\n[x] quit\n"
       input = gets.chomp
       if input == "1"
-        @x_length = 5; @y_length = 5
-        @@moves_left = 8
-        @@bonus = 3
+        @x_length = 2; @y_length = 2
+        @@moves_left = 12
+        @@bonus = 7
         peanut_generator
         self.interface
       elsif input == "2"
-        @x_length = 7; @y_length = 7
+        @x_length = 3; @y_length = 3
         @@moves_left = 10
         @@bonus = 5
         peanut_generator
         self.interface
       elsif input == "3"
-        @x_length = 10; @y_length = 10
-        @@moves_left = 12
-        @@bonus = 7
+        @x_length = 4; @y_length = 4
+        @@moves_left = 8
+        @@bonus = 3
         peanut_generator
         self.interface
       elsif input == "x"
@@ -75,14 +75,19 @@ class Stage
   end
 
   def interface
-    while @@moves_left >= 0
+    level = 0
+    score = 0
+    level_string = "E"
+    over = false
+    until over
       grid_display
       puts ""
       puts "Move the elephant [E] around the map to help it eat the peanut [*]."
       puts "[w] = move up \t\t[a] = move left \n[s] = move down \t[d] = move right\n"
       puts "[x] = exit"
-      puts "\nPeanuts Eaten: #{@@score}"
+      puts "\nPeanuts Eaten: #{score}"
       puts "Moves Left: #{@@moves_left}"
+      puts "Current Level: #{level_string}"
       possible_inputs = ["a", "s", "d", "w"]
       input = STDIN.getch.chomp
       @elephant.move(input, @x_length, @y_length)
@@ -92,12 +97,28 @@ class Stage
       if [@elephant.x, @elephant.y] == [@peanut.x, @peanut.y]
         @@moves_left += @@bonus
         peanut_generator
-        @@score += 1
+        score += 1
+        if score % 5 == 0
+          level += 1
+          @x_length += 1
+          @y_length += 1
+          level_string += @@level_stat[level]
+        end
+      end
+      if level_string == @@level_stat
+        puts "Your elephant did it! YOU WIN!"
+        over = true
+      end
+      if @@moves_left == 0
+        puts "Your elephant died of starvation. GAME OVER..."
+        over = true
       end
     end
-    @@score = 0
+    return game_over
+  end
+
+  def game_over
     @elephant.x = 1; @elephant.y = 1
-    puts "GAME OVER..."
     puts "Press any key to return to the main menu."
     input = gets.chomp
     if input != ""
