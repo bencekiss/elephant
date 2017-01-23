@@ -41,8 +41,9 @@ class Stage
         self.interface
       elsif input == "3"
         @x_length = 4; @y_length = 4
-        @@moves_left = 20
+        @@moves_left = 25
         @@bonus = 3
+        @@fly = 5
         peanut_generator
         self.interface
       elsif input == "x"
@@ -163,7 +164,7 @@ class Stage
     puts "Move Dumbo [D] around the map to help him eat the peanut [*]."
     puts "Dumbo can fly to a new place on the map, but only a limited number of times."
     puts "[w] = move up \t\t[a] = move left \n[s] = move down \t[d] = move right\n"
-    puts "[f] = fly (#{@@fly} left) \t[x] = exit"
+    puts "[f] = fly (x#{@@fly}) \t\t[x] = exit"
   end
 
   def grid_display
